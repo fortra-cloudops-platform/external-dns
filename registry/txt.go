@@ -92,7 +92,7 @@ func NewTXTRegistry(provider provider.Provider, txtPrefix, txtSuffix, ownerID st
 }
 
 func getSupportedTypes() []string {
-	return []string{endpoint.RecordTypeA, endpoint.RecordTypeAAAA, endpoint.RecordTypeCNAME, endpoint.RecordTypeNS}
+	return []string{endpoint.RecordTypeA, endpoint.RecordTypeAAAA, endpoint.RecordTypeCNAME, endpoint.RecordTypeNS, endpoint.RecordTypeMX}
 }
 
 func (im *TXTRegistry) GetDomainFilter() endpoint.DomainFilter {
@@ -214,7 +214,11 @@ func (im *TXTRegistry) Records(ctx context.Context) ([]*endpoint.Endpoint, error
 func (im *TXTRegistry) generateTXTRecord(r *endpoint.Endpoint) []*endpoint.Endpoint {
 	endpoints := make([]*endpoint.Endpoint, 0)
 
-	if !im.txtEncryptEnabled && !im.mapper.recordTypeInAffix() && r.RecordType != endpoint.RecordTypeAAAA {
+	if r.DNSName == "new-record-2.test-zone.example.org" {
+		log.Debug("GOT ERE")
+	}
+
+	if !im.txtEncryptEnabled && !im.mapper.recordTypeInAffix() && r.RecordType != endpoint.RecordTypeAAAA && r.RecordType != endpoint.RecordTypeMX {
 		// old TXT record format
 		txt := endpoint.NewEndpoint(im.mapper.toTXTName(r.DNSName), endpoint.RecordTypeTXT, r.Labels.Serialize(true, im.txtEncryptEnabled, im.txtEncryptAESKey))
 		if txt != nil {

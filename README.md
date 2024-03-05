@@ -14,6 +14,7 @@ hide:
 
 
 ExternalDNS synchronizes exposed Kubernetes Services and Ingresses with DNS providers.
+This has been forked for Nimbus to patch an issue with deleting records created by the CRD.
 
 ## What It Does
 

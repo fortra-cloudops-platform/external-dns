@@ -569,6 +569,7 @@ func testTXTRegistryApplyChangesWithPrefix(t *testing.T) {
 	changes := &plan.Changes{
 		Create: []*endpoint.Endpoint{
 			newEndpointWithOwnerResource("new-record-1.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeCNAME, "", "ingress/default/my-ingress"),
+			newEndpointWithOwner("new-record-2.test-zone.example.org", "\"exampleText\"", endpoint.RecordTypeMX, ""),
 			newEndpointWithOwnerResource("multiple.test-zone.example.org", "lb3.loadbalancer.com", endpoint.RecordTypeCNAME, "", "ingress/default/my-ingress").WithSetIdentifier("test-set-3"),
 			newEndpointWithOwnerResource("example", "new-loadbalancer-1.lb.com", endpoint.RecordTypeCNAME, "", "ingress/default/my-ingress"),
 		},
@@ -588,6 +589,8 @@ func testTXTRegistryApplyChangesWithPrefix(t *testing.T) {
 	expected := &plan.Changes{
 		Create: []*endpoint.Endpoint{
 			newEndpointWithOwnerResource("new-record-1.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeCNAME, "owner", "ingress/default/my-ingress"),
+			newEndpointWithOwner("new-record-2.test-zone.example.org", "\"exampleText\"", endpoint.RecordTypeMX, "owner"),
+			newEndpointWithOwnerAndOwnedRecord("txt.mx-new-record-2.test-zone.example.org", "\"heritage=external-dns,external-dns/owner=owner\"", endpoint.RecordTypeTXT, "", "new-record-2.test-zone.example.org"),
 			newEndpointWithOwnerAndOwnedRecord("txt.new-record-1.test-zone.example.org", "\"heritage=external-dns,external-dns/owner=owner,external-dns/resource=ingress/default/my-ingress\"", endpoint.RecordTypeTXT, "", "new-record-1.test-zone.example.org"),
 			newEndpointWithOwnerAndOwnedRecord("txt.cname-new-record-1.test-zone.example.org", "\"heritage=external-dns,external-dns/owner=owner,external-dns/resource=ingress/default/my-ingress\"", endpoint.RecordTypeTXT, "", "new-record-1.test-zone.example.org"),
 			newEndpointWithOwnerResource("multiple.test-zone.example.org", "lb3.loadbalancer.com", endpoint.RecordTypeCNAME, "owner", "ingress/default/my-ingress").WithSetIdentifier("test-set-3"),
@@ -657,6 +660,7 @@ func testTXTRegistryApplyChangesWithTemplatedPrefix(t *testing.T) {
 	changes := &plan.Changes{
 		Create: []*endpoint.Endpoint{
 			newEndpointWithOwnerResource("new-record-1.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeCNAME, "", "ingress/default/my-ingress"),
+			newEndpointWithOwnerResource("new-record-2.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeMX, "", "ingress/default/my-ingress"),
 		},
 		Delete:    []*endpoint.Endpoint{},
 		UpdateOld: []*endpoint.Endpoint{},
@@ -665,7 +669,9 @@ func testTXTRegistryApplyChangesWithTemplatedPrefix(t *testing.T) {
 	expected := &plan.Changes{
 		Create: []*endpoint.Endpoint{
 			newEndpointWithOwnerResource("new-record-1.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeCNAME, "owner", "ingress/default/my-ingress"),
+			newEndpointWithOwnerResource("new-record-2.test-zone.example.org", "new-loadbalancer-1.lb.com", endpoint.RecordTypeMX, "owner", "ingress/default/my-ingress"),
 			newEndpointWithOwnerAndOwnedRecord("prefixcname.new-record-1.test-zone.example.org", "\"heritage=external-dns,external-dns/owner=owner,external-dns/resource=ingress/default/my-ingress\"", endpoint.RecordTypeTXT, "", "new-record-1.test-zone.example.org"),
+			newEndpointWithOwnerAndOwnedRecord("prefixmx.new-record-2.test-zone.example.org", "\"heritage=external-dns,external-dns/owner=owner,external-dns/resource=ingress/default/my-ingress\"", endpoint.RecordTypeTXT, "", "new-record-2.test-zone.example.org"),
 		},
 	}
 	p.OnApplyChanges = func(ctx context.Context, got *plan.Changes) {
